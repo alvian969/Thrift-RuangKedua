@@ -29,7 +29,7 @@
       <div class="receipt-items-head"><span>Barang</span><span>Jumlah</span><span>Total</span></div>
       @foreach($purchase->detail as $detail)
       <div class="receipt-item">
-        <span>{{ $detail->pakaian?->pakaian_nama ?? 'Produk tidak tersedia' }}</span>
+        <span>{{ $detail->pembelian_detail_nama_pakaian ?? $detail->pakaian?->pakaian_nama ?? 'Produk tidak tersedia' }}</span>
         <span>{{ $detail->pembelian_detail_jumlah }} ×</span>
         <b>Rp {{ number_format($detail->pembelian_detail_total_harga, 0, ',', '.') }}</b>
       </div>

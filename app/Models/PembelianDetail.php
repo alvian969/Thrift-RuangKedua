@@ -9,9 +9,14 @@ class PembelianDetail extends Model
   protected $table = 'pembelian_detail';
   protected $primaryKey = 'pembelian_detail_id';
   public $timestamps = false;
-  protected $fillable = ['pembelian_detail_pembelian_id', 'pembelian_detail_pakaian_id', 'pembelian_detail_jumlah', 'pembelian_detail_total_harga'];
+  protected $fillable = ['pembelian_detail_pembelian_id', 'pembelian_detail_pakaian_id', 'pembelian_detail_nama_pakaian', 'pembelian_detail_jumlah', 'pembelian_detail_total_harga'];
   public function pakaian()
   {
     return $this->belongsTo(Pakaian::class, 'pembelian_detail_pakaian_id', 'pakaian_id');
+  }
+
+  public function pembelian()
+  {
+    return $this->belongsTo(Pembelian::class, 'pembelian_detail_pembelian_id', 'pembelian_id');
   }
 }

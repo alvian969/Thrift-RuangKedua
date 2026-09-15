@@ -297,6 +297,20 @@ h2 {
     font-size: 20px;
 }
 
+.search-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    color: var(--muted);
+    font-size: 20px;
+    line-height: 1;
+}
+
+.search-clear:hover {
+    color: var(--red);
+}
+
 .filters {
     display: flex;
     gap: 22px;
@@ -1030,17 +1044,113 @@ select {
     align-items: start;
 }
 
+.category-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 50px;
+    align-items: start;
+}
+
+.category-grid .form-panel,
+.admin-grid .form-panel {
+    position: sticky;
+    top: 25px;
+}
+
+.category-list {
+    border-top: 1px solid var(--line);
+}
+
+.category-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 160px;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--line);
+    font: 11px 'DM Mono';
+    align-items: center;
+}
+
+.category-row b {
+    font-family: 'Manrope';
+}
+
+.category-edit-trigger {
+    cursor: pointer;
+}
+
+.category-edit-trigger:hover,
+.category-edit-trigger:focus-visible {
+    background: rgba(13, 13, 11, 0.02);
+    outline: none;
+}
+
+.delete:disabled {
+    cursor: not-allowed;
+    opacity: .3;
+}
+
 .inventory {
     border-top: 1px solid var(--line);
 }
 
 .inventory-filter {
-    max-width: 220px;
-    margin: 0 0 18px auto;
+    width: 220px;
+    margin: 0;
 }
 
 .inventory-filter label {
     margin: 0;
+}
+
+.admin-search {
+    display: flex;
+    gap: 10px;
+    flex: 1 1 280px;
+    max-width: 420px;
+    margin: 0;
+}
+
+.admin-search input {
+    margin: 0;
+    min-width: 0;
+}
+
+.admin-search button {
+    border: 1px solid var(--ink);
+    background: transparent;
+    padding: 0 14px;
+    font: 11px 'DM Mono';
+}
+
+.admin-search button:hover {
+    background: var(--ink);
+    color: #fff;
+}
+
+.order-search {
+    max-width: none;
+    margin: 0;
+}
+
+.inventory>.admin-search,
+.inventory>.inventory-filter {
+    display: inline-flex;
+    vertical-align: top;
+    margin-bottom: 18px;
+}
+
+.inventory>.inventory-filter {
+    margin-left: 12px;
+}
+
+.admin-page>.order-filter {
+    width: 220px;
+    margin: 0 0 22px auto;
+}
+
+.admin-page>.order-search+.order-filter {
+    margin-top: 12px;
 }
 
 .table-head,
@@ -1075,6 +1185,7 @@ select {
     align-items: center;
     justify-content: flex-end;
     gap: 10px;
+    min-width: 0;
 }
 
 .product-edit-trigger {
@@ -1422,6 +1533,23 @@ select {
     margin-top: 18px;
 }
 
+.order-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: end;
+    margin-top: 18px;
+}
+
+.order-actions form {
+    margin: 0;
+}
+
+.order-actions label {
+    margin: 0;
+    min-width: 190px;
+}
+
 .history-panel {
     margin-top: 32px;
     max-width: 850px;
@@ -1641,9 +1769,45 @@ footer {
     .detail,
     .auth,
     .admin-grid,
+    .category-grid,
     .account-grid,
     .payment-panel {
         display: block;
+    }
+
+    .category-grid .form-panel,
+    .admin-grid .form-panel {
+        position: static;
+    }
+
+    .category-list,
+    .inventory {
+        margin-top: 35px;
+    }
+
+    .inventory>.admin-search,
+    .inventory>.inventory-filter {
+        display: flex;
+        width: 100%;
+        max-width: none;
+        margin: 0 0 12px;
+    }
+
+    .admin-page>.order-search,
+    .admin-page>.order-filter {
+        width: 100%;
+        max-width: none;
+        margin: 0 0 12px;
+    }
+
+    .category-row {
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+    }
+
+    .category-row .row-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
     }
 
     .summary {
@@ -1700,6 +1864,10 @@ footer {
         grid-template-columns: 1fr auto 25px;
     }
 
+    .row-actions {
+        gap: 6px;
+    }
+
     .cart-row {
         grid-template-columns: 70px 1fr auto 28px;
         gap: 10px;
@@ -1722,6 +1890,17 @@ footer {
     .order-head b {
         grid-column: 1 / -1;
         text-align: left;
+    }
+
+    .order-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .order-actions form,
+    .order-actions label,
+    .order-actions .button {
+        width: 100%;
     }
 
     .user-list-head {

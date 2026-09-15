@@ -12,9 +12,9 @@
   <div class="section-head">
     <div>
       <p class="eyebrow">KOLEKSI</p>
-      <h2>Temuan minggu ini</h2>
+      <h2>Koleksi Thrift</h2>
     </div>
-    <form class="search"><input name="q" value="{{ request('q') }}" placeholder="Cari item..." aria-label="Cari item"><button>↗</button></form>
+    <form class="search"><input name="q" value="{{ request('q') }}" placeholder="Cari item..." aria-label="Cari item">@if(request('kategori'))<input type="hidden" name="kategori" value="{{ request('kategori') }}">@endif<button type="submit" aria-label="Cari">↗</button>@if(request('q'))<a class="search-clear" href="{{ request('kategori') ? route('shop', ['kategori' => request('kategori')]) : route('shop') }}" aria-label="Hapus pencarian" title="Hapus pencarian">×</a>@endif</form>
   </div>
   <div class="filters"><a class="{{ !request('kategori') ? 'active' : '' }}" href="{{ route('shop') }}">Semua item</a>@foreach($categories as $category)<a class="{{ request('kategori') == $category->kategori_pakaian_id ? 'active' : '' }}" href="?kategori={{ $category->kategori_pakaian_id }}">{{ $category->kategori_pakaian_nama }}</a>@endforeach</div>
   <div class="product-grid">@forelse($products as $product)<article class="product"><a class="product-image" href="{{ route('product.show', $product) }}"><img src="{{ $product->pakaian_gambar_url }}" alt="{{ $product->pakaian_nama }}"><span class="tag">{{ $product->kategori->kategori_pakaian_nama }}</span></a>

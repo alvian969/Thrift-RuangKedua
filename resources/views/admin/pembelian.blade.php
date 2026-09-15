@@ -6,7 +6,8 @@
       <h1>Data<br><em>pembelian.</em></h1>
     </div><a class="button outline" href="{{ route('admin.dashboard') }}">← Dashboard</a>
   </div>
-  <form class="order-filter" method="GET" action="{{ route('admin.pembelian') }}"><label>Filter status<select name="status" onchange="this.form.submit()">
+  <form class="admin-search order-search" method="GET" action="{{ route('admin.pembelian') }}"><input name="q" value="{{ $searchTerm }}" placeholder="Cari nomor, nama, atau produk..."><input type="hidden" name="status" value="{{ $selectedStatus }}"><button type="submit">Cari</button>@if($searchTerm || $selectedStatus)<a class="search-clear" href="{{ $selectedStatus ? route('admin.pembelian', ['status' => $selectedStatus]) : route('admin.pembelian') }}" aria-label="Hapus pencarian" title="Hapus pencarian">×</a>@endif</form>
+  <form class="order-filter" method="GET" action="{{ route('admin.pembelian') }}"><input type="hidden" name="q" value="{{ $searchTerm }}"><label>Filter status<select name="status" onchange="this.form.submit()">
         <option value="">Semua status</option>
         <option value="diproses" {{ $selectedStatus === 'diproses' ? 'selected' : '' }}>Diproses</option>
         <option value="menunggu_pembatalan" {{ $selectedStatus === 'menunggu_pembatalan' ? 'selected' : '' }}>Menunggu pembatalan</option>
@@ -17,7 +18,7 @@
   <div class="orders">@forelse($orders as $order)<article class="order">
       <div class="order-head"><span>#{{ str_pad($order->pembelian_id, 4, '0', STR_PAD_LEFT) }} · {{ $order->user->user_fullname }}</span><time>{{ $order->pembelian_tanggal->format('d M Y, H:i') }}</time><b>Rp {{ number_format($order->pembelian_total_harga, 0, ',', '.') }}</b></div>
       <div class="order-meta"><small>Status: {{ str_replace('_', ' ', ucfirst($order->pembelian_status ?? 'diproses')) }}</small></div>
-      <div class="order-items">@foreach($order->detail as $detail)<span>{{ $detail->pakaian->pakaian_nama }} <small>× {{ $detail->pembelian_detail_jumlah }}</small></span>@endforeach</div>
+      <div class="order-items">@foreach($order->detail as $detail)<span>{{ $detail->pembelian_detail_nama_pakaian ?? $detail->pakaian?->pakaian_nama ?? 'Produk tidak tersedia' }} <small>× {{ $detail->pembelian_detail_jumlah }}</small></span>@endforeach</div>
       <div class="order-actions">
         @if($order->pembelian_status === 'menunggu_pembatalan')
         <form method="POST" action="{{ route('admin.pembelian.pembatalan', $order) }}">@csrf<input type="hidden" name="keputusan" value="setujui"><button class="button dark" type="submit">Setujui pembatalan</button></form>

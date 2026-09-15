@@ -101,7 +101,7 @@ class ShopController extends Controller
     $purchase = Pembelian::create(['pembelian_user_id' => $user->user_id, 'pembelian_metode_pembayaran_id' => $payment->metode_pembayaran_id, 'pembelian_tanggal' => now(), 'pembelian_total_harga' => $total, 'pembelian_status' => 'diproses']);
     foreach ($products as $product) {
       $qty = min($cart[$product->pakaian_id], $product->pakaian_stok);
-      PembelianDetail::create(['pembelian_detail_pembelian_id' => $purchase->pembelian_id, 'pembelian_detail_pakaian_id' => $product->pakaian_id, 'pembelian_detail_jumlah' => $qty, 'pembelian_detail_total_harga' => (int) $product->pakaian_harga * $qty]);
+      PembelianDetail::create(['pembelian_detail_pembelian_id' => $purchase->pembelian_id, 'pembelian_detail_pakaian_id' => $product->pakaian_id, 'pembelian_detail_nama_pakaian' => $product->pakaian_nama, 'pembelian_detail_jumlah' => $qty, 'pembelian_detail_total_harga' => (int) $product->pakaian_harga * $qty]);
       $product->decrement('pakaian_stok', $qty);
     }
     session()->forget('cart');

@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2500);
     });
 
-    const openTriggers = document.querySelectorAll('.product-edit-trigger');
+    const openTriggers = document.querySelectorAll('.product-edit-trigger, .category-edit-trigger, .open-edit');
     const closeButtons = document.querySelectorAll('.modal-close');
 
     openTriggers.forEach((trigger) => {

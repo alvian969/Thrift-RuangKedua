@@ -8,6 +8,7 @@
     </div><a class="button outline" href="{{ route('admin.dashboard') }}">← Dashboard</a>
   </div>
   <div class="user-list">
+    <form class="admin-search" method="GET" action="{{ route('admin.pengguna') }}"><input name="q" value="{{ $searchTerm }}" placeholder="Cari nama, pengguna, atau email..."><button type="submit">Cari</button>@if($searchTerm)<a class="search-clear" href="{{ route('admin.pengguna') }}" aria-label="Hapus pencarian" title="Hapus pencarian">×</a>@endif</form>
     <div class="user-list-head"><span>Pengguna</span><span>Kontak</span><span>Role</span><span>Status</span></div>
     @forelse($users as $user)
     <article class="user-row">

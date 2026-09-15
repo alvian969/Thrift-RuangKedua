@@ -1,58 +1,144 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Ruang Kedua
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Ruang Kedua adalah aplikasi web toko pakaian thrift/preloved yang dibangun dengan Laravel. Pengunjung dapat melihat katalog pakaian, mencari dan memfilter produk, memasukkan barang ke keranjang, lalu melakukan checkout. Admin dapat mengelola produk, kategori, pesanan, dan pengguna.
 
-## About Laravel
+## Fitur
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Katalog dan detail produk pakaian
+- Pencarian dan filter produk berdasarkan kategori
+- Keranjang belanja berbasis session
+- Registrasi, login, dan pengelolaan profil
+- Checkout dengan pilihan DANA, OVO, BCA, dan COD
+- Riwayat pembelian dan nota transaksi
+- Pengajuan pembatalan pesanan
+- Dashboard admin untuk mengelola produk, kategori, pesanan, stok, dan pengguna
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Teknologi
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.3+
+- Laravel 13
+- SQLite (default) atau MySQL
+- Vite
+- Tailwind CSS
+- PHPUnit
 
-## Learning Laravel
+## Persyaratan
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Pastikan perangkat sudah memiliki:
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- PHP 8.3 atau lebih baru
+- Composer
+- Node.js dan npm
+- SQLite atau MySQL
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Instalasi
 
-## Agentic Development
+1. Clone repository dan masuk ke folder project:
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+   ```bash
+   git clone <URL-REPOSITORY>
+   cd laravel
+   ```
+
+2. Install dependency PHP:
+
+   ```bash
+   composer install
+   ```
+
+3. Buat file environment dan application key.
+
+   Windows PowerShell:
+
+   ```powershell
+   Copy-Item .env.example .env
+   php artisan key:generate
+   ```
+
+   Linux/macOS:
+
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+4. Atur koneksi database pada file `.env`. Project menggunakan SQLite secara default. Pastikan file `database/database.sqlite` tersedia. Pada Windows, file tersebut dapat dibuat secara manual jika belum tersedia.
+
+5. Jalankan migration, data awal, dan symbolic link storage:
+
+   ```bash
+   php artisan migrate --seed
+   php artisan storage:link
+   ```
+
+6. Install dependency frontend:
+
+   ```bash
+   npm install
+   ```
+
+## Menjalankan Aplikasi
+
+Jalankan server Laravel:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Pada terminal lain, jalankan Vite:
 
-## Contributing
+```bash
+npm run dev
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Buka [http://localhost:8000](http://localhost:8000) pada browser.
 
-## Code of Conduct
+Untuk build asset frontend:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+npm run build
+```
 
-## Security Vulnerabilities
+## Akun Demo
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Akun berikut dibuat oleh seeder dan hanya ditujukan untuk development:
 
-## License
+| Level | Username | Password |
+| --- | --- | --- |
+| Admin | `admin` | `password` |
+| Pelanggan | `pelanggan` | `password` |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Jangan gunakan kredensial demo ini pada environment production.
+
+## Testing
+
+Jalankan seluruh test dengan:
+
+```bash
+php artisan test
+```
+
+Atau gunakan script Composer:
+
+```bash
+composer test
+```
+
+Test menggunakan SQLite in-memory sehingga tidak mengubah database development.
+
+## Struktur Utama
+
+```text
+app/                 Logika aplikasi, controller, dan model
+database/migrations/ Struktur tabel database
+database/seeders/    Data awal aplikasi
+resources/views/     Template halaman Blade
+resources/js/        Asset JavaScript
+resources/css/       Asset CSS
+routes/web.php       Daftar route web
+tests/               Automated tests
+```
+
+## Lisensi
+
+Project ini dibuat untuk kebutuhan pembelajaran dan pengembangan aplikasi toko pakaian thrift.

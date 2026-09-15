@@ -119,6 +119,155 @@ class UserPurchaseHistoryTest extends TestCase
         ]);
     }
 
+    public function test_admin_gets_notification_when_deleting_product_in_active_purchase(): void
+    {
+        $category = KategoriPakaian::create(['kategori_pakaian_nama' => 'Kaos']);
+        $admin = User::create([
+            'user_username' => 'admindeleteactive',
+            'user_password' => 'secret123',
+            'user_fullname' => 'Admin Delete Active',
+            'user_email' => 'admindeleteactive@example.com',
+            'user_nohp' => '081234567800',
+            'user_alamat' => 'Jl. Admin No. 5',
+            'user_profil_url' => 'https://example.com/admin-delete.jpg',
+            'user_level' => 'Admin',
+        ]);
+        $buyer = User::create([
+            'user_username' => 'buyeractive',
+            'user_password' => 'secret123',
+            'user_fullname' => 'Buyer Active',
+            'user_email' => 'buyeractive@example.com',
+            'user_nohp' => '081234567801',
+            'user_alamat' => 'Jl. Pembeli No. 5',
+            'user_profil_url' => 'https://example.com/buyer-active.jpg',
+            'user_level' => 'Pengguna',
+        ]);
+        $payment = MetodePembayaran::create([
+            'metode_pembayaran_user_id' => $buyer->user_id,
+            'metode_pembayaran_jenis' => 'COD',
+        ]);
+        $product = Pakaian::create([
+            'pakaian_kategori_pakaian_id' => $category->kategori_pakaian_id,
+            'pakaian_nama' => 'Kaos Aktif',
+            'pakaian_harga' => 50000,
+            'pakaian_stok' => 1,
+            'pakaian_gambar_url' => 'https://example.com/aktif.jpg',
+        ]);
+        $purchase = Pembelian::create([
+            'pembelian_user_id' => $buyer->user_id,
+            'pembelian_metode_pembayaran_id' => $payment->metode_pembayaran_id,
+            'pembelian_tanggal' => now(),
+            'pembelian_total_harga' => 50000,
+            'pembelian_status' => 'diproses',
+        ]);
+        PembelianDetail::create([
+            'pembelian_detail_pembelian_id' => $purchase->pembelian_id,
+            'pembelian_detail_pakaian_id' => $product->pakaian_id,
+            'pembelian_detail_jumlah' => 1,
+            'pembelian_detail_total_harga' => 50000,
+        ]);
+
+        session(['user_id' => $admin->user_id, 'user_level' => 'Admin']);
+        $response = $this->delete('/admin/pakaian/' . $product->pakaian_id);
+
+        $response->assertRedirect()->assertSessionHas('error', 'Barang yang masih dalam proses pembelian tidak dapat dihapus.');
+        $this->assertDatabaseHas('pakaian', ['pakaian_id' => $product->pakaian_id]);
+    }
+
+    public function test_admin_can_delete_product_from_completed_purchase(): void
+    {
+        $category = KategoriPakaian::create(['kategori_pakaian_nama' => 'Kaos']);
+        $admin = User::create([
+            'user_username' => 'admindeletecompleted',
+            'user_password' => 'secret123',
+            'user_fullname' => 'Admin Delete Completed',
+            'user_email' => 'admindeletecompleted@example.com',
+            'user_nohp' => '081234567802',
+            'user_alamat' => 'Jl. Admin No. 6',
+            'user_profil_url' => 'https://example.com/admin-completed.jpg',
+            'user_level' => 'Admin',
+        ]);
+        $buyer = User::create([
+            'user_username' => 'buyercompleted',
+            'user_password' => 'secret123',
+            'user_fullname' => 'Buyer Completed',
+            'user_email' => 'buyercompleted@example.com',
+            'user_nohp' => '081234567803',
+            'user_alamat' => 'Jl. Pembeli No. 6',
+            'user_profil_url' => 'https://example.com/buyer-completed.jpg',
+            'user_level' => 'Pengguna',
+        ]);
+        $payment = MetodePembayaran::create([
+            'metode_pembayaran_user_id' => $buyer->user_id,
+            'metode_pembayaran_jenis' => 'COD',
+        ]);
+        $product = Pakaian::create([
+            'pakaian_kategori_pakaian_id' => $category->kategori_pakaian_id,
+            'pakaian_nama' => 'Kaos Selesai',
+            'pakaian_harga' => 55000,
+            'pakaian_stok' => 0,
+            'pakaian_gambar_url' => 'https://example.com/selesai.jpg',
+        ]);
+        $purchase = Pembelian::create([
+            'pembelian_user_id' => $buyer->user_id,
+            'pembelian_metode_pembayaran_id' => $payment->metode_pembayaran_id,
+            'pembelian_tanggal' => now(),
+            'pembelian_total_harga' => 55000,
+            'pembelian_status' => 'selesai',
+        ]);
+        PembelianDetail::create([
+            'pembelian_detail_pembelian_id' => $purchase->pembelian_id,
+            'pembelian_detail_pakaian_id' => $product->pakaian_id,
+            'pembelian_detail_nama_pakaian' => $product->pakaian_nama,
+            'pembelian_detail_jumlah' => 1,
+            'pembelian_detail_total_harga' => 55000,
+        ]);
+
+        session(['user_id' => $admin->user_id, 'user_level' => 'Admin']);
+        $this->delete('/admin/pakaian/' . $product->pakaian_id)->assertRedirect();
+
+        $this->assertDatabaseMissing('pakaian', ['pakaian_id' => $product->pakaian_id]);
+        $this->assertDatabaseHas('pembelian_detail', [
+            'pembelian_detail_pembelian_id' => $purchase->pembelian_id,
+            'pembelian_detail_nama_pakaian' => 'Kaos Selesai',
+        ]);
+    }
+
+    public function test_admin_can_manage_categories_and_cannot_delete_used_category(): void
+    {
+        $admin = User::create([
+            'user_username' => 'admincategory',
+            'user_password' => 'secret123',
+            'user_fullname' => 'Admin Category',
+            'user_email' => 'admincategory@example.com',
+            'user_nohp' => '081234567899',
+            'user_alamat' => 'Jl. Admin Kategori',
+            'user_profil_url' => 'https://example.com/admin-category.jpg',
+            'user_level' => 'Admin',
+        ]);
+        session(['user_id' => $admin->user_id, 'user_level' => 'Admin']);
+
+        $this->post('/admin/kategori', [
+            'kategori_pakaian_nama' => 'Jaket',
+        ])->assertRedirect();
+
+        $category = KategoriPakaian::where('kategori_pakaian_nama', 'Jaket')->firstOrFail();
+        $this->put('/admin/kategori/' . $category->kategori_pakaian_id, [
+            'kategori_pakaian_nama' => 'Jaket Vintage',
+        ])->assertRedirect();
+
+        $product = Pakaian::create([
+            'pakaian_kategori_pakaian_id' => $category->kategori_pakaian_id,
+            'pakaian_nama' => 'Jaket Klasik',
+            'pakaian_harga' => 120000,
+            'pakaian_stok' => 2,
+            'pakaian_gambar_url' => 'https://example.com/jaket.jpg',
+        ]);
+
+        $this->delete('/admin/kategori/' . $category->kategori_pakaian_id)->assertStatus(422);
+        $this->assertDatabaseHas('pakaian', ['pakaian_id' => $product->pakaian_id]);
+    }
+
     public function test_buyer_can_request_cancellation_and_admin_can_approve_it(): void
     {
         $category = KategoriPakaian::create(['kategori_pakaian_nama' => 'Kaos']);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\KategoriPakaian;
 use App\Models\Pakaian;
 use App\Models\Pembelian;
+use App\Models\PembelianDetail;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -31,11 +32,15 @@ class AdminController extends Controller
     if ($request->filled('kategori')) {
       $query->where('pakaian_kategori_pakaian_id', $request->kategori);
     }
+    if ($request->filled('q')) {
+      $query->where('pakaian_nama', 'like', '%' . $request->q . '%');
+    }
 
     return view('admin.pakaian', [
-      'products' => $query->paginate(6)->appends($request->only('kategori')),
+      'products' => $query->paginate(6)->appends($request->only(['kategori', 'q'])),
       'categories' => KategoriPakaian::all(),
       'selectedCategory' => $request->kategori,
+      'searchTerm' => $request->q,
     ]);
   }
   public function storePakaian(Request $request)
@@ -45,6 +50,47 @@ class AdminController extends Controller
     Pakaian::create($data);
     return back()->with('success', 'Produk berhasil ditambahkan.');
   }
+  public function kategori(Request $request)
+  {
+    $this->guard();
+    $query = KategoriPakaian::withCount('pakaian')->orderBy('kategori_pakaian_nama');
+    if ($request->filled('q')) {
+      $query->where('kategori_pakaian_nama', 'like', '%' . $request->q . '%');
+    }
+    return view('admin.kategori', [
+      'categories' => $query->get(),
+      'searchTerm' => $request->q,
+    ]);
+  }
+
+  public function storeKategori(Request $request)
+  {
+    $this->guard();
+    $data = $request->validate([
+      'kategori_pakaian_nama' => 'required|string|max:50|unique:kategori_pakaian,kategori_pakaian_nama',
+    ]);
+    KategoriPakaian::create($data);
+    return back()->with('success', 'Kategori berhasil ditambahkan.');
+  }
+
+  public function updateKategori(Request $request, KategoriPakaian $kategoriPakaian)
+  {
+    $this->guard();
+    $data = $request->validate([
+      'kategori_pakaian_nama' => 'required|string|max:50|unique:kategori_pakaian,kategori_pakaian_nama,' . $kategoriPakaian->kategori_pakaian_id . ',kategori_pakaian_id',
+    ]);
+    $kategoriPakaian->update($data);
+    return back()->with('success', 'Kategori berhasil diperbarui.');
+  }
+
+  public function destroyKategori(KategoriPakaian $kategoriPakaian)
+  {
+    $this->guard();
+    abort_if($kategoriPakaian->pakaian()->exists(), 422, 'Kategori yang masih memiliki produk tidak dapat dihapus.');
+    $kategoriPakaian->delete();
+    return back()->with('success', 'Kategori berhasil dihapus.');
+  }
+
   public function updatePakaian(Request $request, Pakaian $pakaian)
   {
     $this->guard();
@@ -63,6 +109,17 @@ class AdminController extends Controller
   public function destroyPakaian(Pakaian $pakaian)
   {
     $this->guard();
+
+    $hasActivePurchase = PembelianDetail::where('pembelian_detail_pakaian_id', $pakaian->pakaian_id)
+      ->whereHas('pembelian', function ($query) {
+        $query->whereIn('pembelian_status', ['diproses', 'menunggu_pembatalan', 'dikirim']);
+      })
+      ->exists();
+
+    if ($hasActivePurchase) {
+      return back()->with('error', 'Barang yang masih dalam proses pembelian tidak dapat dihapus.');
+    }
+
     $pakaian->delete();
     return back()->with('success', 'Produk dihapus.');
   }
@@ -73,10 +130,23 @@ class AdminController extends Controller
     if ($request->filled('status')) {
       $query->where('pembelian_status', $request->status);
     }
+    if ($request->filled('q')) {
+      $query->where(function ($nested) use ($request) {
+        $nested->where('pembelian_id', $request->q)
+          ->orWhereHas('user', function ($userQuery) use ($request) {
+            $userQuery->where('user_fullname', 'like', '%' . $request->q . '%')
+              ->orWhere('user_username', 'like', '%' . $request->q . '%');
+          })
+          ->orWhereHas('detail.pakaian', function ($productQuery) use ($request) {
+            $productQuery->where('pakaian_nama', 'like', '%' . $request->q . '%');
+          });
+      });
+    }
 
     return view('admin.pembelian', [
       'orders' => $query->get(),
       'selectedStatus' => $request->status,
+      'searchTerm' => $request->q,
     ]);
   }
 
@@ -125,9 +195,20 @@ class AdminController extends Controller
     return back()->with('success', 'Pembatalan pembelian ditolak. Pesanan kembali diproses.');
   }
 
-  public function pengguna()
+  public function pengguna(Request $request)
   {
     $this->guard();
-    return view('admin.pengguna', ['users' => User::orderBy('user_level')->orderBy('user_fullname')->get()]);
+    $query = User::orderBy('user_level')->orderBy('user_fullname');
+    if ($request->filled('q')) {
+      $query->where(function ($nested) use ($request) {
+        $nested->where('user_fullname', 'like', '%' . $request->q . '%')
+          ->orWhere('user_username', 'like', '%' . $request->q . '%')
+          ->orWhere('user_email', 'like', '%' . $request->q . '%');
+      });
+    }
+    return view('admin.pengguna', [
+      'users' => $query->get(),
+      'searchTerm' => $request->q,
+    ]);
   }
 }

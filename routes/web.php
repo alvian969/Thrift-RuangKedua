@@ -29,6 +29,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('dashboard');
     Route::get('/pakaian', [AdminController::class, 'pakaian'])->name('pakaian');
     Route::post('/pakaian', [AdminController::class, 'storePakaian'])->name('pakaian.store');
+    Route::get('/kategori', [AdminController::class, 'kategori'])->name('kategori');
+    Route::post('/kategori', [AdminController::class, 'storeKategori'])->name('kategori.store');
+    Route::put('/kategori/{kategoriPakaian}', [AdminController::class, 'updateKategori'])->name('kategori.update');
+    Route::delete('/kategori/{kategoriPakaian}', [AdminController::class, 'destroyKategori'])->name('kategori.destroy');
     Route::put('/pakaian/{pakaian}', [AdminController::class, 'updatePakaian'])->name('pakaian.update');
     Route::delete('/pakaian/{pakaian}', [AdminController::class, 'destroyPakaian'])->name('pakaian.destroy');
     Route::get('/pembelian', [AdminController::class, 'pembelian'])->name('pembelian');

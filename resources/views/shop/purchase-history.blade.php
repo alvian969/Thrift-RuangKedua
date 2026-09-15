@@ -26,7 +26,7 @@
       </div>
       <div class="order-items">
         @foreach($purchase->detail as $detail)
-        <span>{{ $detail->pakaian?->pakaian_nama ?? 'Produk tidak tersedia' }} <small>× {{ $detail->pembelian_detail_jumlah }}</small></span>
+        <span>{{ $detail->pembelian_detail_nama_pakaian ?? $detail->pakaian?->pakaian_nama ?? 'Produk tidak tersedia' }} <small>× {{ $detail->pembelian_detail_jumlah }}</small></span>
         @endforeach
       </div>
       @if(($purchase->pembelian_status ?? 'diproses') === 'diproses')
